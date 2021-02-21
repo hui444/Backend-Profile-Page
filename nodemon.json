@@ -1,0 +1,7 @@
+{
+  "env": {
+    "DB_USER": "huihui",
+    "DB_PASSWORD": "g8LCF21mljdA5AMd",
+    "DB_NAME": "newDatabase"
+  }
+}

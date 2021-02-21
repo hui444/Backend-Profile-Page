@@ -62,7 +62,7 @@ const updateProfileInformation = async (req, res, next) => {
     return next(err);
   }
 
-  const { name, age, email, contact } = req.body;
+  const { name, age, email, contactNumber, profileImage } = req.body;
   const profileId = req.params.profileId;
 
   let profile;
@@ -79,7 +79,8 @@ const updateProfileInformation = async (req, res, next) => {
   profile.name = name;
   profile.age = age;
   profile.email = email;
-  profile.contact = contact;
+  profile.contactNumber = contactNumber;
+  profile.profileImage = profileImage;
 
   try {
     await profile.save();
@@ -102,13 +103,21 @@ const createProfile = async (req, res, next) => {
     );
   }
 
-  const { name, age, email, contact, workExperiences } = req.body;
+  const {
+    name,
+    age,
+    email,
+    contactNumber,
+    profileImage,
+    workExperiences,
+  } = req.body;
 
   const createdProfile = new Profile({
     name,
     age,
     email,
-    contact,
+    contactNumber,
+    profileImage,
     workExperiences,
   });
 
@@ -119,7 +128,7 @@ const createProfile = async (req, res, next) => {
     return next(err);
   }
 
-  res.status(201).json({ profile: createdProfile });
+  res.status(201).json({ profile: createdProfile.toObject({ getters: true }) });
 };
 
 const getAllProfileWorkExperience = async (req, res, next) => {
@@ -169,6 +178,7 @@ const getWorkExperienceById = async (req, res, next) => {
     return next(err);
   }
 
+  console.log(workExperience);
   res.status(200).json({
     workExperience: workExperience,
   });
@@ -182,10 +192,11 @@ const updateProfileWorkExperienceById = async (req, res, next) => {
     startDate,
     endDate,
     isCurrentJob,
-    companyImage,
+    companyLogo,
   } = req.body;
   const err = validationResult(req);
   if (!err.isEmpty()) {
+    console.log(err);
     return next(
       new HttpError("Invalid inputs passed, please check your data", 422)
     );
@@ -193,6 +204,7 @@ const updateProfileWorkExperienceById = async (req, res, next) => {
   const profileId = req.params.profileId;
   const workExperienceId = req.params.workExperienceId;
 
+  console.log(companyLogo);
   let profile, workExperienceIndex;
   try {
     profile = await Profile.findById(profileId);
@@ -224,7 +236,7 @@ const updateProfileWorkExperienceById = async (req, res, next) => {
     startDate,
     endDate,
     isCurrentJob,
-    companyImage,
+    companyLogo,
   };
 
   profile.workExperiences.set(workExperienceIndex, newWorkExperience);
@@ -239,7 +251,10 @@ const updateProfileWorkExperienceById = async (req, res, next) => {
     return next(err);
   }
 
-  res.status(200).json({ profile: profile.toObject({ getters: true }) });
+  res.status(200).json({
+    message: "Selected profile has been successfully updated.",
+    profile: profile.workExperiences,
+  });
 };
 
 const addNewWorkExperienceToProfile = async (req, res, next) => {
@@ -255,6 +270,7 @@ const addNewWorkExperienceToProfile = async (req, res, next) => {
   } = req.body;
   const err = validationResult(req);
   if (!err.isEmpty()) {
+    console.log(err);
     return next(
       new HttpError("Invalid inputs passed, please check your data", 422)
     );
@@ -279,13 +295,13 @@ const addNewWorkExperienceToProfile = async (req, res, next) => {
     jobTitle,
     jobDescription,
     startDate,
-    if(endDate) {
-      endDate;
-    },
+    ...(endDate && {
+      endDate: endDate,
+    }),
     isCurrentJob,
-    if(companyLogo) {
-      companyLogo;
-    },
+    ...(companyLogo && {
+      companyLogo: companyLogo,
+    }),
   };
 
   profile.workExperiences.push(newWorkExperience);
@@ -300,7 +316,7 @@ const addNewWorkExperienceToProfile = async (req, res, next) => {
     return next(err);
   }
 
-  res.status(200).json({ profile: profile.toObject({ getters: true }) });
+  res.status(200).json({ message: "New work experience successfully added." });
 };
 
 const removeWorkExperienceFromProfile = async (req, res, next) => {
@@ -333,7 +349,9 @@ const removeWorkExperienceFromProfile = async (req, res, next) => {
     return next(err);
   }
 
-  res.status(200).json({ profile: profile.toObject({ getters: true }) });
+  res
+    .status(200)
+    .json({ message: "Selected work experience was successfully deleted." });
 };
 
 exports.getAllProfiles = getAllProfiles;

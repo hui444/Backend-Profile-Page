@@ -27,9 +27,9 @@ router.post(
   [
     check("name").notEmpty(),
     check("age").isNumeric(),
-    check("contact").optional().isMobilePhone(),
+    check("contactNumber").optional().isMobilePhone(),
     check("email").optional().isEmail(),
-    check("profilePhoto").optional().isDataURI(),
+    check("profileImage").optional().isDataURI(),
     check("workExperiences").optional().isArray(),
   ],
   profileControllers.createProfile
@@ -72,9 +72,9 @@ router.patch(
   [
     check("name").notEmpty(),
     check("age").isNumeric(),
-    check("contact").optional().isMobilePhone(),
+    check("contactNumber").optional().isMobilePhone(),
     check("email").optional().isEmail(),
-    check("profilePhoto").optional().isDataURI(),
+    check("profileImage").optional().isDataURI(),
     check("workExperiences").optional().isArray(),
   ],
   profileControllers.updateProfileInformation

@@ -9,6 +9,17 @@ const app = express();
 
 app.use(bodyParser.json());
 
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
+
+  next();
+});
+
 app.use("/api/profile", profileRoutes);
 
 app.use((req, res, next) => {
@@ -25,8 +36,7 @@ app.use((err, req, res, next) => {
     .json({ message: err.message || "An unkown error occurred!" });
 });
 
-const uri =
-  "mongodb+srv://huihui:g8LCF21mljdA5AMd@cluster0.taade.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.taade.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`;
 const connectConfig = {
   useNewUrlParser: true,
   useUnifiedTopology: true,
