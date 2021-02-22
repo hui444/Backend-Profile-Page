@@ -9,6 +9,7 @@ const profileSchema = new Schema({
   email: { type: String, required: false },
   profileImage: { type: String, required: false },
   workExperiences: { type: Array, required: false },
+  createdDate: { type: Number, required: true },
 });
 
 module.exports = mongoose.model("Profile", profileSchema);

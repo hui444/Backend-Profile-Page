@@ -21,6 +21,8 @@ router.get("/all", profileControllers.getAllProfiles);
 
 router.get("/:profileId", profileControllers.getProfileById);
 
+router.get("/", profileControllers.getLatestProfile);
+
 //create profile
 router.post(
   "/create",

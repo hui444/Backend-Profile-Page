@@ -51,6 +51,32 @@ const getProfileById = async (req, res, next) => {
   res.json({ profile: profile.toObject({ getters: true }) });
 };
 
+const getLatestProfile = async (req, res, next) => {
+  let profiles;
+  try {
+    profiles = await Profile.find();
+  } catch (error) {
+    const err = new HttpError(
+      "Fetching profiles failed, please try again later.",
+      500
+    );
+    return next(err);
+  }
+
+  if (!profiles || profiles.length === 0) {
+    return next(new HttpError("There are no profiles, create one!"));
+  }
+
+  sortedProfiles = await Profile.find().sort({
+    createdDate: -1,
+  });
+  let newlyCreatedProfile = sortedProfiles[0];
+
+  res.json({
+    profile: newlyCreatedProfile.toObject({ getters: true }),
+  });
+};
+
 const updateProfileInformation = async (req, res, next) => {
   const error = validationResult(req);
   if (!error.isEmpty()) {
@@ -119,6 +145,7 @@ const createProfile = async (req, res, next) => {
     contactNumber,
     profileImage,
     workExperiences,
+    createdDate: Math.floor(Date.now() / 1000),
   });
 
   try {
@@ -133,7 +160,7 @@ const createProfile = async (req, res, next) => {
 
 const getAllProfileWorkExperience = async (req, res, next) => {
   const profileId = req.params.profileId;
-  let workExperiences, profile;
+  let profileWorkExperiences, profile;
   try {
     profile = await Profile.findById(profileId);
   } catch (error) {
@@ -144,10 +171,18 @@ const getAllProfileWorkExperience = async (req, res, next) => {
     return next(err);
   }
 
-  workExperiences = profile.workExperiences;
+  try {
+    profileWorkExperiences = profile.workExperiences;
+  } catch (error) {
+    const err = new HttpError(
+      "Could not retrieve work experiences of the specified user, please try again later.",
+      404
+    );
+    return next(err);
+  }
 
   res.status(200).json({
-    workExperiences: workExperiences,
+    workExperiences: profileWorkExperiences,
   });
 };
 
@@ -178,7 +213,6 @@ const getWorkExperienceById = async (req, res, next) => {
     return next(err);
   }
 
-  console.log(workExperience);
   res.status(200).json({
     workExperience: workExperience,
   });
@@ -204,7 +238,6 @@ const updateProfileWorkExperienceById = async (req, res, next) => {
   const profileId = req.params.profileId;
   const workExperienceId = req.params.workExperienceId;
 
-  console.log(companyLogo);
   let profile, workExperienceIndex;
   try {
     profile = await Profile.findById(profileId);
@@ -338,7 +371,6 @@ const removeWorkExperienceFromProfile = async (req, res, next) => {
     (w) => w.workExperienceId !== workExperienceId
   );
 
-  console.log(profile);
   try {
     await profile.save();
   } catch (error) {
@@ -356,6 +388,7 @@ const removeWorkExperienceFromProfile = async (req, res, next) => {
 
 exports.getAllProfiles = getAllProfiles;
 exports.getProfileById = getProfileById;
+exports.getLatestProfile = getLatestProfile;
 exports.updateProfileInformation = updateProfileInformation;
 exports.createProfile = createProfile;
 exports.getAllProfileWorkExperience = getAllProfileWorkExperience;
