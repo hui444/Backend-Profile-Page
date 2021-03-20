@@ -57,12 +57,12 @@ router.post(
 router.patch(
   "/:profileId/workExperience/:workExperienceId",
   [
-    check("companyName").notEmpty(),
-    check("jobTitle").notEmpty(),
-    check("jobDescription").notEmpty(),
-    check("startDate").isISO8601("YYYY-MM"),
+    check("companyName").optional().notEmpty(),
+    check("jobTitle").optional().notEmpty(),
+    check("jobDescription").optional().notEmpty(),
+    check("startDate").optional().isISO8601("YYYY-MM"),
     check("endDate").optional().isISO8601("YYYY-MM"),
-    check("isCurrentJob").isBoolean(),
+    check("isCurrentJob").optional().isBoolean(),
     check("companyLogo").optional().isDataURI(),
   ],
   profileControllers.updateProfileWorkExperienceById
@@ -72,8 +72,8 @@ router.patch(
 router.patch(
   "/:profileId",
   [
-    check("name").notEmpty(),
-    check("age").isNumeric(),
+    check("name").optional().notEmpty(),
+    check("age").optional().isNumeric(),
     check("contactNumber").optional().isMobilePhone(),
     check("email").optional().isEmail(),
     check("profileImage").optional().isDataURI(),
