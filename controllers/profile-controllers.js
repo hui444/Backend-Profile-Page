@@ -88,7 +88,14 @@ const updateProfileInformation = async (req, res, next) => {
     return next(err);
   }
 
-  const { name, age, email, contactNumber, profileImage } = req.body;
+  const {
+    name,
+    age,
+    email,
+    contactNumber,
+    description,
+    profileImage,
+  } = req.body;
   const profileId = req.params.profileId;
 
   let profile;
@@ -102,11 +109,14 @@ const updateProfileInformation = async (req, res, next) => {
     return next(err);
   }
 
-  profile.name = name;
-  profile.age = age;
-  profile.email = email;
-  profile.contactNumber = contactNumber;
-  profile.profileImage = profileImage;
+  if (name !== undefined) profile.name = name;
+  if (age !== undefined) profile.age = age;
+  if (email !== undefined) profile.email = email;
+  if (contactNumber !== undefined) profile.contactNumber = contactNumber;
+  if (profileImage !== undefined) profile.profileImage = profileImage;
+  if (profileImage === null && profile.profileImage !== undefined)
+    profile.profileImage = undefined; //case where image is removed
+  if (description !== undefined) profile.description = description;
 
   try {
     await profile.save();
@@ -135,7 +145,7 @@ const createProfile = async (req, res, next) => {
     email,
     contactNumber,
     profileImage,
-    workExperiences,
+    description,
   } = req.body;
 
   const createdProfile = new Profile({
@@ -144,7 +154,8 @@ const createProfile = async (req, res, next) => {
     email,
     contactNumber,
     profileImage,
-    workExperiences,
+    description,
+    workExperiences: [],
     createdDate: Math.floor(Date.now() / 1000),
   });
 
@@ -188,7 +199,7 @@ const getAllProfileWorkExperience = async (req, res, next) => {
 
 const getWorkExperienceById = async (req, res, next) => {
   const profileId = req.params.profileId;
-  const workExperienceId = req.params.workExperienceId;
+  const weId = req.params.weId;
 
   let profile, workExperience;
   try {
@@ -202,9 +213,7 @@ const getWorkExperienceById = async (req, res, next) => {
   }
 
   try {
-    workExperience = profile.workExperiences.find(
-      (w) => w.workExperienceId === workExperienceId
-    );
+    workExperience = profile.workExperiences.find((w) => w.weId === weId);
   } catch (error) {
     const err = new HttpError(
       "Could not find work experience of given profile and work experience id",
@@ -236,7 +245,7 @@ const updateProfileWorkExperienceById = async (req, res, next) => {
     );
   }
   const profileId = req.params.profileId;
-  const workExperienceId = req.params.workExperienceId;
+  const weId = req.params.weId;
 
   let profile, workExperienceIndex;
   try {
@@ -250,7 +259,7 @@ const updateProfileWorkExperienceById = async (req, res, next) => {
   }
 
   workExperienceIndex = profile.workExperiences.findIndex(
-    (w) => w.workExperienceId === workExperienceId
+    (w) => w.weId === weId
   );
 
   if (workExperienceIndex === -1) {
@@ -261,15 +270,39 @@ const updateProfileWorkExperienceById = async (req, res, next) => {
     return next(err);
   }
 
+  let finalCompanyLogo =
+    profile.workExperiences[workExperienceIndex].companyLogo;
+  if (companyLogo === null && finalCompanyLogo !== undefined) {
+    //photo was removed
+    finalCompanyLogo = undefined;
+  } else if (companyLogo) {
+    finalCompanyLogo = companyLogo;
+  }
+
   const newWorkExperience = {
-    workExperienceId: workExperienceId,
-    companyName,
-    jobTitle,
-    jobDescription,
-    startDate,
-    endDate,
-    isCurrentJob,
-    companyLogo,
+    weId: weId,
+    companyName: companyName
+      ? companyName
+      : profile.workExperiences[workExperienceIndex].companyName,
+
+    jobTitle: jobTitle
+      ? jobTitle
+      : profile.workExperiences[workExperienceIndex].jobTitle,
+    jobDescription: jobDescription
+      ? jobDescription
+      : profile.workExperiences[workExperienceIndex].jobDescription,
+    startDate: startDate
+      ? startDate
+      : profile.workExperiences[workExperienceIndex].startDate,
+    endDate: endDate
+      ? endDate
+      : profile.workExperiences[workExperienceIndex].endDate,
+    isCurrentJob:
+      isCurrentJob !== undefined
+        ? isCurrentJob
+        : profile.workExperiences[workExperienceIndex].isCurrentJob,
+
+    companyLogo: finalCompanyLogo,
   };
 
   profile.workExperiences.set(workExperienceIndex, newWorkExperience);
@@ -292,7 +325,7 @@ const updateProfileWorkExperienceById = async (req, res, next) => {
 
 const addNewWorkExperienceToProfile = async (req, res, next) => {
   const {
-    workExperienceId,
+    weId,
     companyName,
     jobTitle,
     jobDescription,
@@ -323,18 +356,14 @@ const addNewWorkExperienceToProfile = async (req, res, next) => {
   }
 
   const newWorkExperience = {
-    workExperienceId,
+    weId,
     companyName,
     jobTitle,
     jobDescription,
     startDate,
-    ...(endDate && {
-      endDate: endDate,
-    }),
+    endDate: endDate ? endDate : undefined,
     isCurrentJob,
-    ...(companyLogo && {
-      companyLogo: companyLogo,
-    }),
+    companyLogo: companyLogo ? companyLogo : undefined,
   };
 
   profile.workExperiences.push(newWorkExperience);
@@ -354,7 +383,7 @@ const addNewWorkExperienceToProfile = async (req, res, next) => {
 
 const removeWorkExperienceFromProfile = async (req, res, next) => {
   const profileId = req.params.profileId;
-  const workExperienceId = req.params.workExperienceId;
+  const weId = req.params.weId;
 
   let profile;
   try {
@@ -368,7 +397,7 @@ const removeWorkExperienceFromProfile = async (req, res, next) => {
   }
 
   profile.workExperiences = profile.workExperiences.filter(
-    (w) => w.workExperienceId !== workExperienceId
+    (w) => w.weId !== weId
   );
 
   try {

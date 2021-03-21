@@ -13,7 +13,7 @@ router.get(
 
 //get specified work experience of a profile
 router.get(
-  "/:profileId/workExperience/:workExperienceId",
+  "/:profileId/workExperience/:weId",
   profileControllers.getWorkExperienceById
 );
 
@@ -31,8 +31,8 @@ router.post(
     check("age").isNumeric(),
     check("contactNumber").optional().isMobilePhone(),
     check("email").optional().isEmail(),
+    check("description").notEmpty(),
     check("profileImage").optional().isDataURI(),
-    check("workExperiences").optional().isArray(),
   ],
   profileControllers.createProfile
 );
@@ -41,7 +41,7 @@ router.post(
 router.post(
   "/:profileId/create",
   [
-    check("workExperienceId").notEmpty(),
+    check("weId").notEmpty(),
     check("companyName").notEmpty(),
     check("jobTitle").notEmpty(),
     check("jobDescription").notEmpty(),
@@ -55,15 +55,15 @@ router.post(
 
 //update work experience of selected profile
 router.patch(
-  "/:profileId/workExperience/:workExperienceId",
+  "/:profileId/workExperience/:weId",
   [
     check("companyName").optional().notEmpty(),
     check("jobTitle").optional().notEmpty(),
     check("jobDescription").optional().notEmpty(),
     check("startDate").optional().isISO8601("YYYY-MM"),
-    check("endDate").optional().isISO8601("YYYY-MM"),
+    check("endDate").optional({ nullable: true }).isISO8601("YYYY-MM"),
     check("isCurrentJob").optional().isBoolean(),
-    check("companyLogo").optional().isDataURI(),
+    check("companyLogo").optional({ nullable: true }).isDataURI(),
   ],
   profileControllers.updateProfileWorkExperienceById
 );
@@ -74,16 +74,16 @@ router.patch(
   [
     check("name").optional().notEmpty(),
     check("age").optional().isNumeric(),
-    check("contactNumber").optional().isMobilePhone(),
-    check("email").optional().isEmail(),
-    check("profileImage").optional().isDataURI(),
-    check("workExperiences").optional().isArray(),
+    check("contactNumber").optional({ nullable: true }).isMobilePhone(),
+    check("email").optional({ nullable: true }).isEmail(),
+    check("description").optional().notEmpty(),
+    check("profileImage").optional({ nullable: true }).isDataURI(),
   ],
   profileControllers.updateProfileInformation
 );
 
 router.delete(
-  "/:profileId/workExperience/:workExperienceId",
+  "/:profileId/workExperience/:weId",
   profileControllers.removeWorkExperienceFromProfile
 );
 
