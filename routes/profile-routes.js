@@ -19,14 +19,14 @@ router.get(
 
 router.get("/all", profileControllers.getAllProfiles);
 
-router.get("/:profileId", profileControllers.getProfileById);
-
-router.get("/", profileControllers.getLatestProfile);
-
 router.get(
   "/workExperiences",
   profileControllers.getLatestProfileWorkExperiences
 );
+
+router.get("/:profileId", profileControllers.getProfileById);
+
+router.get("/", profileControllers.getLatestProfile);
 
 //create profile
 router.post(

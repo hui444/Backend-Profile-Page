@@ -78,6 +78,7 @@ const getLatestProfile = async (req, res, next) => {
 };
 
 const getLatestProfileWorkExperiences = async (req, res, next) => {
+  console.log("hi");
   let profiles;
   try {
     profiles = await Profile.find();
@@ -104,6 +105,7 @@ const getLatestProfileWorkExperiences = async (req, res, next) => {
     }),
   });
 };
+
 const updateProfileInformation = async (req, res, next) => {
   const error = validationResult(req);
   if (!error.isEmpty()) {
