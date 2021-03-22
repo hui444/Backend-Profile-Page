@@ -23,6 +23,11 @@ router.get("/:profileId", profileControllers.getProfileById);
 
 router.get("/", profileControllers.getLatestProfile);
 
+router.get(
+  "/workExperiences",
+  profileControllers.getLatestProfileWorkExperiences
+);
+
 //create profile
 router.post(
   "/create",

@@ -77,6 +77,33 @@ const getLatestProfile = async (req, res, next) => {
   });
 };
 
+const getLatestProfileWorkExperiences = async (req, res, next) => {
+  let profiles;
+  try {
+    profiles = await Profile.find();
+  } catch (error) {
+    const err = new HttpError(
+      "Fetching profiles failed, please try again later.",
+      500
+    );
+    return next(err);
+  }
+
+  if (!profiles || profiles.length === 0) {
+    return next(new HttpError("There are no profiles, create one!"));
+  }
+
+  sortedProfiles = await Profile.find().sort({
+    createdDate: -1,
+  });
+  let newlyCreatedProfile = sortedProfiles[0];
+
+  res.json({
+    workExperiences: newlyCreatedProfile.workExperiences.toObject({
+      getters: true,
+    }),
+  });
+};
 const updateProfileInformation = async (req, res, next) => {
   const error = validationResult(req);
   if (!error.isEmpty()) {
@@ -418,6 +445,7 @@ const removeWorkExperienceFromProfile = async (req, res, next) => {
 exports.getAllProfiles = getAllProfiles;
 exports.getProfileById = getProfileById;
 exports.getLatestProfile = getLatestProfile;
+exports.getLatestProfileWorkExperiences = getLatestProfileWorkExperiences;
 exports.updateProfileInformation = updateProfileInformation;
 exports.createProfile = createProfile;
 exports.getAllProfileWorkExperience = getAllProfileWorkExperience;
