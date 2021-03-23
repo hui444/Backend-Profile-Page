@@ -78,7 +78,6 @@ const getLatestProfile = async (req, res, next) => {
 };
 
 const getLatestProfileWorkExperiences = async (req, res, next) => {
-  console.log("hi");
   let profiles;
   try {
     profiles = await Profile.find();
